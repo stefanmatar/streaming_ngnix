@@ -74,22 +74,6 @@ ATEM.on('rawCommand', function (state) {
     }
 });
 
-var ws = new WebSocket('ws://localhost:8080');
-
-ws.onmessage = function (event) {
-    try {
-        request = event.data.split("+");
-        if (request[1] === "o") {
-            console.log('Cam ' + request[0] + " is online.")
-        } else if (request[1] === "p") {
-            console.log('Cam ' + request[0] + " is on preview.")
-        } else if (request[1] === "a") {
-            console.log('Cam ' + request[0] + " is on aux.")
-        }
-    } catch (e) {
-    }
-};
-
 function notifyOnline(cam) {
     try {
         ws.send(cam + '+o');
