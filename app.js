@@ -1,30 +1,19 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-const cookieParser = require('cookie-parser');
-const logger = require('morgan');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cors = require('cors');
+const indexRouter = require('./routes/index');
 
-var indexRouter = require('./routes/index');
-
-var app = express();
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
-
-app.use(logger('dev'));
+const app = express();
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
 app.use('/', indexRouter);
-
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
     next(createError(404));
 });
-
 // error handler
 app.use(function (err, req, res) {
     // set locals, only providing error in development
@@ -36,20 +25,15 @@ app.use(function (err, req, res) {
     res.render('error');
 });
 
+// ATEM Control
 
 const Atem = require('atem');
-const myAtemDevice = new Atem('192.168.2.15');
-
-
-myAtemDevice.on('connectionStateChange', function (state) {
-    console.log('state', state);
-});
-
+const ATEM = new Atem('192.168.2.15');
 const WebSocket = require('ws');
 
 const wss = new WebSocket.Server({port: 8080});
 
-// Broadcast to all.
+// Broadcast to all
 wss.broadcast = function broadcast(data) {
     wss.clients.forEach(function each(client) {
         if (client.readyState === WebSocket.OPEN) {
@@ -60,7 +44,6 @@ wss.broadcast = function broadcast(data) {
 
 wss.on('connection', function connection(ws) {
     ws.on('message', function incoming(data) {
-        // Broadcast to everyone else.
         wss.clients.forEach(function each(client) {
             try {
                 if (client !== ws && client.readyState === WebSocket.OPEN) {
@@ -71,44 +54,24 @@ wss.on('connection', function connection(ws) {
         });
     });
 
-    function online(cam) {
-        try {
-            ws.send(cam + '+o');
-        } catch (e) {
-        }
+    notifyPreview(ATEM.state);
+    notifyOnline(ATEM.state);
+    notifyAux(ATEM.state);
+});
+
+
+ATEM.on('previewBus', function (state) {
+    notifyPreview(state)
+});
+ATEM.on('programBus', function (state) {
+    notifyOnline(state)
+});
+
+ATEM.on('rawCommand', function (state) {
+    if (state.name === 'AuxS') {
+        const auxOutput = state.data[3];
+        notifyAux(auxOutput);
     }
-
-    function preview(cam) {
-        try {
-            ws.send(cam + '+p');
-        } catch (e) {
-        }
-    }
-
-    function aux(cam) {
-        try {
-            ws.send(cam + '+a');
-        } catch (e) {
-        }
-    }
-
-    myAtemDevice.on('previewBus', function (state) {
-        preview(state)
-    });
-    myAtemDevice.on('programBus', function (state) {
-        online(state)
-    });
-    myAtemDevice.on('auxiliaryOutput', function (state) {
-        console.log(state);
-    });
-
-    myAtemDevice.on('rawCommand', function (state) {
-        if (state.name === 'AuxS') {
-            console.log('AUX Changed.');
-            console.log(state.data[3]);
-            aux(state.data[3]);
-        }
-    });
 });
 
 var ws = new WebSocket('ws://localhost:8080');
@@ -123,14 +86,29 @@ ws.onmessage = function (event) {
         } else if (request[1] === "a") {
             console.log('Cam ' + request[0] + " is on aux.")
         }
-        console.log();
     } catch (e) {
     }
 };
 
-ws.onerror = () => {
-    console.log("A client died.");
-};
+function notifyOnline(cam) {
+    try {
+        ws.send(cam + '+o');
+    } catch (e) {
+    }
+}
 
+function notifyPreview(cam) {
+    try {
+        ws.send(cam + '+p');
+    } catch (e) {
+    }
+}
+
+function notifyAux(cam) {
+    try {
+        ws.send(cam + '+a');
+    } catch (e) {
+    }
+}
 
 module.exports = app;

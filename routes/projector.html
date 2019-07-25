@@ -12,99 +12,83 @@
             crossorigin="anonymous"></script>
 </head>
 <body>
+
 <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
-    <h5 class="my-0 mr-md-auto font-weight-normal">Agape Media</h5>
-</div>
-<div class="container">
-    <div class="card-deck text-center">
-        <div class="card shadow-sm">
-            <div class="card-header">
-                <button type="button" class="btn btn-lg btn-block btn-outline-primary" onclick="showCam5()">
-                    CAM 5
-                </button>
-            </div>
-            <div class="card-body">
-                Linke Kamera
-            </div>
-        </div>
-        <div class="card shadow-sm">
-            <div class="card-header">
-                <button type="button" class="btn btn-lg btn-block btn-outline-primary" onclick="showCam6()">
-                    CAM 6
-                </button>
-            </div>
-            <div class="card-body">
-                Kran Kamera
-            </div>
-        </div>
-        <div class="card shadow-sm">
-            <div class="card-header">
-                <button type="button" class="btn btn-lg btn-block btn-outline-primary" onclick="showCam7()">
-                    CAM 7
-                </button>
-            </div>
-            <div class="card-body">
-                Central Cam
-            </div>
-        </div>
-        <div class="card shadow-sm">
-            <div class="card-header">
-                <button type="button" class="btn btn-lg btn-block btn-outline-primary" onclick="showCam8()">
-                    CAM 8
-                </button>
-            </div>
-            <div class="card-body">
-                Projektor
-            </div>
-        </div>
+    <div class="container">
+        <h5 class="my-0 mr-md-auto font-weight-normal">Agape Media</h5>
     </div>
+</div>
+
+<div class="container">
     <div class="card shadow-sm" style="margin-top: 30px">
-        <div class="card-header" id="aux">
-            Central Cam
-        </div>
         <div class="card-body" style="margin: 0 auto;">
             <iframe id="cam" src="http://192.168.2.90/cgi-bin/camera?UID=Admin" frameborder="0" allowfullscreen
                     style="width: 640px; height: 360px"></iframe>
         </div>
     </div>
-    <script>
-        window.setInterval(function () {
+    <br><br>
+    <div class="d-flex justify-content-between" style="padding: 20px 0">
+        <button id="cam1" type="button" class="btn btn-lg btn-outline-dark" onclick="setCam(1)">CAM 1</button>
+        <button id="cam2" type="button" class="btn btn-lg btn-outline-dark" onclick="setCam(2)">CAM 2</button>
+        <button id="cam3" type="button" class="btn btn-lg btn-outline-dark" onclick="setCam(3)">Drum</button>
+        <button id="cam4" type="button" class="btn btn-lg btn-outline-dark" onclick="setCam(4)">Mobile</button>
+    </div>
+    <div class="d-flex justify-content-between" style="padding: 20px 0">
+        <button id="cam5" type="button" class="btn btn-lg btn-outline-dark" onclick="setCam(5)">Stand</button>
+        <button id="cam6" type="button" class="btn btn-lg btn-outline-dark" onclick="setCam(6)">Kran</button>
+        <button id="cam7" type="button" class="btn btn-lg btn-outline-dark" onclick="setCam(7)">Central</button>
+        <button id="cam8" type="button" class="btn btn-lg btn-outline-dark" onclick="setCam(8)">Projektion</button>
+    </div>
+</div>
+
+<script>
+    function setCam(number) {
+        jQuery.ajax({
+            url: "http://192.168.2.21:3000/cam",
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                cam: number
+            }
+        });
+    }
+
+    var ws = new WebSocket('ws://localhost:8080');
+    ws.onopen = function (evt) {
+        console.log(evt)
+    };
+
+    ws.onmessage = function (evt) {
+        if (evt.data[2] === "a") {
+            const camNumber = evt.data[0];
+
+            document.getElementById('cam1').classList.remove('active');
+            document.getElementById('cam2').classList.remove('active');
+            document.getElementById('cam3').classList.remove('active');
+            document.getElementById('cam4').classList.remove('active');
+            document.getElementById('cam5').classList.remove('active');
+            document.getElementById('cam6').classList.remove('active');
+            document.getElementById('cam7').classList.remove('active');
+            document.getElementById('cam8').classList.remove('active');
+
+            document.getElementById('cam' + camNumber).classList.add('active');
+        }
+    };
+
+    window.setInterval(function () {
+        try {
             var iframe = document.getElementById('cam');
             iframe.src = iframe.src;
-        }, 50);
-
-        function showCam5() {
-            jQuery.ajax({
-                url: "http://192.168.2.21:3000/cam",
-                type: 'GET',
-                dataType: 'json',
-            });
+        } catch (e) {
         }
+    }, 50);
+</script>
 
-        function showCam6() {
-            jQuery.ajax({
-                url: "http://192.168.2.21:3000/kran",
-                type: 'GET',
-                dataType: 'json',
-            });
-        }
+<style>
+    .btn {
+        min-width: 200px;
+    }
+</style>
 
-        function showCam7() {
-            jQuery.ajax({
-                url: "http://192.168.2.21:3000/central",
-                type: 'GET',
-                dataType: 'json',
-            });
-        }
-
-        function showCam8() {
-            jQuery.ajax({
-                url: "http://192.168.2.21:3000/projector",
-                type: 'GET',
-                dataType: 'json',
-            });
-        }
-    </script>
-</div>
 </body>
 </html>

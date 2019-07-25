@@ -8,39 +8,26 @@ const processSomething = callback => {
 router.post("/hook", (req, res) => {
     processSomething(() => {
         console.log('Client connected..');
-
         socket.on('auth',  (data) => {
             console.log(data);
         });
     });
-    res.status(200).send('OK')
+    res.status(200).send()
 });
 
-router.get('/projector', function(req, res) {
+router.get('/beamer', function(req, res) {
     res.sendFile(__dirname + '/projector.html');
 });
 
-var ATEM = require('applest-atem');
+const atem = require('applest-atem');
 
-var atem2 = new ATEM();
+const ATEM = new atem();
 
-atem2.connect('192.168.2.15');
+ATEM.connect('192.168.2.15');
 
-router.get('/cam', function(req, res) {
-    atem2.changeAuxInput(0,5);
-    res.send('string');
-});
-router.get('/kran', function(req, res) {
-    atem2.changeAuxInput(0,6);
-    res.send('string');
-});
-router.get('/central', function(req, res) {
-    atem2.changeAuxInput(0,7);
-    res.send('string');
-});
-router.get('/projector', function(req, res) {
-    atem2.changeAuxInput(0,8);
-    res.send('string');
+router.post('/cam',function(req,res){
+    ATEM.changeAuxInput(0, req.body.cam);
+    res.status(200).end();
 });
 
 module.exports = router;
