@@ -88,7 +88,6 @@ function notifyPreview(cam) {
 
 function notifyAux(cam) {
     if (websockets) {
-        console.log('notified about aux', cam)
         websockets.send(cam + '+a');
     }
 }

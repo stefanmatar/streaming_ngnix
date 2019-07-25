@@ -39,6 +39,14 @@
         <button id="cam7" type="button" class="btn btn-lg btn-outline-dark" onclick="setCam(7)">Central</button>
         <button id="cam8" type="button" class="btn btn-lg btn-outline-dark" onclick="setCam(8)">Projektion</button>
     </div>
+    <br><br>
+    <div class="d-flex justify-content-around" style="padding: 20px 0">
+        Bild über
+    </div>
+    <div class="d-flex justify-content-around" style="padding: 20px 0">
+        <button type="button" class="btn btn-lg btn-outline-success" onclick="switchHDMI()">Videomixer</button>
+        <button type="button" class="btn btn-lg btn-outline-success" onclick="switchSDI()">Direkt</button>
+    </div>
 </div>
 
 <script>
@@ -53,7 +61,29 @@
         });
     }
 
-    var ws = new WebSocket('ws://localhost:8080');
+    function switchHDMI() {
+        jQuery.ajax({
+            url: "http://192.168.2.81:3000/change",
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                input: 'HDMI'
+            }
+        });
+    }
+
+    function switchSDI() {
+        jQuery.ajax({
+            url: "http://192.168.2.81:3000/change",
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                input: 'SDI'
+            }
+        });
+    }
+
+    var ws = new WebSocket('ws://192.168.2.21:8080');
 
     ws.onmessage = function (evt) {
         if (evt.data[2] === "a") {
@@ -84,6 +114,7 @@
 <style>
     .btn {
         min-width: 200px;
+        text-transform: uppercase;
     }
 </style>
 
