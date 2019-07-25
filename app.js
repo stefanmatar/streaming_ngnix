@@ -41,8 +41,12 @@ wss.broadcast = function broadcast(data) {
         }
     });
 };
+let websockets = undefined;
 
 wss.on('connection', function connection(ws) {
+
+    websockets = ws;
+
     ws.on('message', function incoming(data) {
         wss.clients.forEach(function each(client) {
             try {
@@ -54,11 +58,7 @@ wss.on('connection', function connection(ws) {
         });
     });
 
-    notifyPreview(ATEM.state);
-    notifyOnline(ATEM.state);
-    notifyAux(ATEM.state);
 });
-
 
 ATEM.on('previewBus', function (state) {
     notifyPreview(state)
@@ -75,24 +75,23 @@ ATEM.on('rawCommand', function (state) {
 });
 
 function notifyOnline(cam) {
-    try {
-        ws.send(cam + '+o');
-    } catch (e) {
+    if (websockets) {
+        websockets.send(cam + '+o');
     }
 }
 
 function notifyPreview(cam) {
-    try {
-        ws.send(cam + '+p');
-    } catch (e) {
+    if (websockets) {
+        websockets.send(cam + '+p');
     }
 }
 
 function notifyAux(cam) {
-    try {
-        ws.send(cam + '+a');
-    } catch (e) {
+    if (websockets) {
+        console.log('notified about aux', cam)
+        websockets.send(cam + '+a');
     }
 }
+
 
 module.exports = app;

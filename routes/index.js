@@ -26,7 +26,7 @@ const ATEM = new atem();
 ATEM.connect('192.168.2.15');
 
 router.post('/cam',function(req,res){
-    console.log('AUX is set to CAM ' + req.body.cam);
+    console.log('set AUX to CAM ' + req.body.cam);
     ATEM.changeAuxInput(0, req.body.cam);
     res.status(200).end();
 });

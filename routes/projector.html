@@ -53,10 +53,7 @@
         });
     }
 
-    var ws = new WebSocket('ws://192.168.2.21:8080');
-    ws.onopen = function (evt) {
-        console.log(evt)
-    };
+    var ws = new WebSocket('ws://localhost:8080');
 
     ws.onmessage = function (evt) {
         if (evt.data[2] === "a") {
