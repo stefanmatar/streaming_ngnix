@@ -19,6 +19,10 @@ router.get('/beamer', function(req, res) {
     res.sendFile(__dirname + '/projector.html');
 });
 
+router.get('/songtext', function(req, res) {
+    res.sendFile(__dirname + '/songtext.html');
+});
+
 const atem = require('applest-atem');
 
 const ATEM = new atem();
