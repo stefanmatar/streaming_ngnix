@@ -31,33 +31,21 @@ const Atem = require('atem');
 const ATEM = new Atem('192.168.2.15');
 const WebSocket = require('ws');
 
-const wss = new WebSocket.Server({port: 8080});
+const wss = new WebSocket.Server({port: 3001});
 
 // Broadcast to all
-wss.broadcast = function broadcast(data) {
+wss.broadcast = data => {
     wss.clients.forEach(function each(client) {
         if (client.readyState === WebSocket.OPEN) {
             client.send(data);
         }
     });
 };
+
 let websockets = undefined;
 
 wss.on('connection', function connection(ws) {
-
     websockets = ws;
-
-    ws.on('message', function incoming(data) {
-        wss.clients.forEach(function each(client) {
-            try {
-                if (client !== ws && client.readyState === WebSocket.OPEN) {
-                    client.send(data);
-                }
-            } catch (e) {
-            }
-        });
-    });
-
 });
 
 ATEM.on('previewBus', function (state) {
@@ -75,21 +63,15 @@ ATEM.on('rawCommand', function (state) {
 });
 
 function notifyOnline(cam) {
-    if (websockets) {
-        websockets.send(cam + '+o');
-    }
+    wss.broadcast(cam + '+o');
 }
 
 function notifyPreview(cam) {
-    if (websockets) {
-        websockets.send(cam + '+p');
-    }
+    wss.broadcast(cam + '+p');
 }
 
 function notifyAux(cam) {
-    if (websockets) {
-        websockets.send(cam + '+a');
-    }
+    wss.broadcast(cam + '+a');
 }
 
 
