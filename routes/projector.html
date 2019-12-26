@@ -13,12 +13,6 @@
 </head>
 <body>
 
-<div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
-    <div class="container">
-        <h5 class="my-0 mr-md-auto font-weight-normal">Agape Media</h5>
-    </div>
-</div>
-
 <div class="container">
     <br><br>
     <div class="d-flex justify-content-between" style="padding: 20px 0">
@@ -34,7 +28,7 @@
         <button id="cam8" type="button" class="btn btn-lg btn-outline-dark" onclick="setCam(8)">Projektion</button>
     </div>
     <div class="d-flex justify-content-around" style="padding: 20px 0">
-        <button type="button" class="btn btn-lg  btn-outline-dark" onclick="setCam(9)">LIVE</button>
+        <button id="cam26" type="button" class="btn btn-lg btn-outline-dark" onclick="setCam(534298)">LIVE</button>
     </div>
     <br><br>
     <div class="d-flex justify-content-around" style="padding: 20px 0">
@@ -83,8 +77,10 @@
     var ws = new WebSocket('ws://192.168.2.20:3001');
 
     ws.onmessage = function (evt) {
-        if (evt.data[2] === "a") {
-            const camNumber = evt.data[0];
+        if (evt.data.includes("a")) {
+            var txt = evt.data;
+            var numb = txt.match(/\d/g);
+            numb = numb.join("");
 
             document.getElementById('cam1').classList.remove('active');
             document.getElementById('cam2').classList.remove('active');
@@ -94,8 +90,9 @@
             document.getElementById('cam6').classList.remove('active');
             document.getElementById('cam7').classList.remove('active');
             document.getElementById('cam8').classList.remove('active');
+            document.getElementById('cam26').classList.remove('active');
 
-            document.getElementById('cam' + camNumber).classList.add('active');
+            document.getElementById('cam' + numb).classList.add('active');
         }
     };
 
